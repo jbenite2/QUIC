@@ -1,0 +1,22 @@
+python examples/http3_client.py --ca-certs tests/pycacert.pem  https://localhost:4433/ -d testing
+
+
+
+
+python examples/http3_server.py --certificate tests/ssl_cert.pem --private-key tests/ssl_key.pem -q JBS_log
+
+
+
+
+Structure the log so that we have the event types, time of arrival and of being sent, relative time, 
+
+ABSOLUTE time
+RELATIVE time
+
+Parse the JSON file and try to make sense of it (maybe create a CSV)
+
+Look into a quic JSOn log browser
+
+Try Wireshark while running the program and see what we get
+
+Do this for server and clientx

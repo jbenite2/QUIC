@@ -1,0 +1,33 @@
+UDP - Quic
+
+Look up UDP Quic
+
+Send package covered a wired network and see if the integrity is preserved
+
+Get further oriented with UDP, User Level
+
+Can we send packets of the sizes that we want?
+
+Quic tries to bring along something called TLS which is security 
+
+We’ll write the server side to be 
+
+Stick to C++
+
+What should my HW be 
+
+Goals for these couple weeks send files
+
+Goals for later, send packet with certain package and certain space
+
+“If we can use quic that would be awesome”
+
+Our research is to create a server side library using quick platform where you can specify space and the gaps and orchestrate timing. We’ll also log the lag. We’ll deal with 
+
+Look up wireless and how ack works and why it looses packages all the time
+
+Wifi does tcp send ack send ack slow
+
+If you served data too fast 
+
+Remind myself what a socket is

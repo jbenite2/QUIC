@@ -1,0 +1,6 @@
+100 MS Sleep Time
+Record all results in an array and then print it out.
+Write it in Python or C++
+Connect it all on Localhost so the only source of the delay is the sleep time. 
+Random array of 1000 Bytes to send.
+Can we get quic working
