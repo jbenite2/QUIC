@@ -64,22 +64,30 @@ class HttpRequestHandler:
         if isinstance(event, DataReceived):
             # data_received = event.data.decode("utf-8")  
             # print(f"Received data: {data_received}")
-            start_time = time.time()
+            received_time = time.time()
             self.queue.put_nowait(
                 {
-                    "type": "http.request",
-                    "body": event.data,
-                    "more_body": not event.stream_ended,
+                    # "type": "http.request",
+                    # "body": event.data,
+                    # "more_body": not event.stream_ended,
+                    "server_received_time": received_time
                 }
             )
-            elapsed_time = time.time() - start_time# Assuming data is in utf-8 encoding
-            print(f"Time taken to process data: {elapsed_time} seconds")
+            # elapsed_time = time.time() - start_time# Assuming data is in utf-8 encoding
+            # print(f"Time taken to process data: {elapsed_time} seconds")
 
 
         elif isinstance(event, HeadersReceived) and event.stream_ended:
             self.queue.put_nowait(
                 {"type": "http.request", "body": b"", "more_body": False}
             )
+        
+        # Output queue to another file
+        with open('output.txt', 'a') as f:
+            while not self.queue.empty():
+                f.write(str(self.queue.get_nowait()) + "\n")
+            
+
 
     async def run_asgi(self, app: AsgiApplication) -> None:
         await app(self.scope, self.receive, self.send)

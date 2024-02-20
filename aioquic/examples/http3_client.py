@@ -253,7 +253,7 @@ async def perform_http_request(
     # perform request
     if data is not None:
         data_bytes = data.encode()
-        total_chunks = (len(data_bytes) // chunk_size)+1
+        send_time = time.time()
         for i in range(0, len(data_bytes), chunk_size):
             http_events = await client.post(
                 url,
@@ -265,20 +265,22 @@ async def perform_http_request(
             )
         method = "POST"
     else:
+        send_time = time.time()
         http_events = await client.get(url)
         method = "GET"
-    elapsed = time.time() - start
+
+    with open("output.txt", "a") as f:
+        f.write(f"{{'client_send_time': {send_time}}}\n")
 
     # print speed
-    print("Elapsed time: ", elapsed)
     octets = 0
     for http_event in http_events:
         if isinstance(http_event, DataReceived):
             octets += len(http_event.data)
-    logger.info(
-        "Response received for %s %s : %d bytes in %.1f s (%.3f Mbps)"
-        % (method, urlparse(url).path, octets, elapsed, octets * 8 / elapsed / 1000000)
-    )
+    # logger.info(
+        # "Response received for %s %s : %d bytes in %.1f s (%.3f Mbps)"
+        # % (method, urlparse(url).path, octets, elapsed, octets * 8 / elapsed / 1000000)
+    # )
 
     # output response
     if output_dir is not None:
