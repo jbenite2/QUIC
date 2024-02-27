@@ -7,5 +7,4 @@ Nagles Algorithm
 
 
 Asssignment:
-1. Set up the code where argument so the quantity and the gap are arguments
 2. Write bash script that runs this through a few values

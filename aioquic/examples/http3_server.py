@@ -36,6 +36,9 @@ HttpConnection = Union[H0Connection, H3Connection]
 
 SERVER_NAME = "aioquic/" + aioquic.__version__
 
+packet_size = 512
+interval = 0.013
+packet_count = 3
 
 class HttpRequestHandler:
     def __init__(
@@ -111,8 +114,8 @@ class HttpRequestHandler:
                 + [(k, v) for k, v in message["headers"]],
             )
         elif message["type"] == "http.response.body":
-            for _ in range(3):
-                packet = b"X" * 512  # Create a packet of 512 bytes
+            for _ in range(packet_count):
+                packet = b"X" * packet_size  # Create a packet of 512 bytes by default
                 self.connection.send_data(
                     stream_id=self.stream_id,
                     data=packet,
@@ -121,7 +124,7 @@ class HttpRequestHandler:
                 serverSendTime = time.time()  
                 packetSendTimes.append(serverSendTime)
 
-                time.sleep(0.013)  # Sleep for 13 ms between packets
+                time.sleep(interval)  # Sleep for 13 ms between packets
 
 
             self.connection.send_data(
@@ -132,7 +135,7 @@ class HttpRequestHandler:
 
         with open('output.txt', 'a') as f:
             while packetSendTimes != []:
-                print(packetSendTimes[0])
+                print(packetSendTimes[0], "and the interval is ", interval)
                 f.write("  "+str(packetSendTimes.pop(0))+"\n")
 
 
@@ -516,6 +519,27 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="QUIC server")
     parser.add_argument(
+            "-size",
+            type=int,
+            nargs="?",
+            default=512,
+            help="the size of the packet to send",
+    )
+    parser.add_argument(
+            "-interval",
+            type=float,
+            nargs="?",
+            default=0.013,
+            help="the interval between packets",
+    )
+    parser.add_argument(
+            "-count",
+            type=int,
+            nargs="?",
+            default=3,
+            help="the number of packets to send",
+    )
+    parser.add_argument(
         "app",
         type=str,
         nargs="?",
@@ -580,6 +604,16 @@ if __name__ == "__main__":
         "-v", "--verbose", action="store_true", help="increase logging verbosity"
     )
     args = parser.parse_args()
+
+
+    if args.size:
+        packet_size = args.size
+    if args.interval:
+        interval = args.interval
+    if args.count:
+        packet_count = args.count
+
+
 
     logging.basicConfig(
         format="%(asctime)s %(levelname)s %(name)s %(message)s",
