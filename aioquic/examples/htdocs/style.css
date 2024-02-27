@@ -5,6 +5,10 @@ body {
     width: 40em;
 }
 
+h1 {
+	font-size: 1.5em;
+}
+
 table.logs {
     width: 100%;
 }

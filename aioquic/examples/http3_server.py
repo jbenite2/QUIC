@@ -61,18 +61,34 @@ class HttpRequestHandler:
             self.queue.put_nowait({"type": "http.request"})
 
     def http_event_received(self, event: H3Event) -> None:
-        if isinstance(event, DataReceived):
-            self.queue.put_nowait(
-                {
-                    "type": "http.request",
-                    "body": event.data,
-                    "more_body": not event.stream_ended,
-                }
-            )
-        elif isinstance(event, HeadersReceived) and event.stream_ended:
-            self.queue.put_nowait(
-                {"type": "http.request", "body": b"", "more_body": False}
-            )
+        if isinstance(event, HeadersReceived) and event.stream_ended:
+            # Respond only if it's a GET request
+            if self.scope["method"].decode().upper() == "GET":
+                # Respond with "Hello World"
+                response_body = b"Hello World"
+                self.queue.put_nowait(
+                    {
+                        "type": "http.response.start",
+                        "status": 200,
+                        "headers": [
+                            (b"content-length", str(len(response_body)).encode()),
+                            (b"content-type", b"text/plain"),
+                        ],
+                    }
+                )
+                self.queue.put_nowait({"type": "http.response.body", "body": response_body, "more_body": False})
+            else:
+                # Respond with 405 Method Not Allowed for non-GET requests
+                self.queue.put_nowait(
+                    {
+                        "type": "http.response.start",
+                        "status": 405,
+                        "headers": [
+                            (b"content-length", b"0"),
+                        ],
+                    }
+                )
+                self.queue.put_nowait({"type": "http.response.body", "body": b"", "more_body": False})
 
     async def run_asgi(self, app: AsgiApplication) -> None:
         await app(self.scope, self.receive, self.send)
@@ -81,6 +97,9 @@ class HttpRequestHandler:
         return await self.queue.get()
 
     async def send(self, message: Dict) -> None:
+
+        packetSendTimes = []
+
         if message["type"] == "http.response.start":
             self.connection.send_headers(
                 stream_id=self.stream_id,
@@ -92,37 +111,33 @@ class HttpRequestHandler:
                 + [(k, v) for k, v in message["headers"]],
             )
         elif message["type"] == "http.response.body":
+            for _ in range(3):
+                packet = b"X" * 512  # Create a packet of 512 bytes
+                self.connection.send_data(
+                    stream_id=self.stream_id,
+                    data=packet,
+                    end_stream=False  
+                )
+                serverSendTime = time.time()  
+                packetSendTimes.append(serverSendTime)
+
+                time.sleep(0.013)  # Sleep for 13 ms between packets
+
+
             self.connection.send_data(
                 stream_id=self.stream_id,
-                data=message.get("body", b""),
-                end_stream=not message.get("more_body", False),
+                data=b"",  # Send an empty data packet to end the stream
+                end_stream=True  # Set end_stream to True for the last packet
             )
-        elif message["type"] == "http.response.push" and isinstance(
-            self.connection, H3Connection
-        ):
-            request_headers = [
-                (b":method", b"GET"),
-                (b":scheme", b"https"),
-                (b":authority", self.authority),
-                (b":path", message["path"].encode()),
-            ] + [(k, v) for k, v in message["headers"]]
 
-            # send push promise
-            try:
-                push_stream_id = self.connection.send_push_promise(
-                    stream_id=self.stream_id, headers=request_headers
-                )
-            except NoAvailablePushIDError:
-                return
+        with open('output.txt', 'a') as f:
+            while packetSendTimes != []:
+                print(packetSendTimes[0])
+                f.write("  "+str(packetSendTimes.pop(0))+"\n")
 
-            # fake request
-            cast(HttpServerProtocol, self.protocol).http_event_received(
-                HeadersReceived(
-                    headers=request_headers, stream_ended=True, stream_id=push_stream_id
-                )
-            )
+
+
         self.transmit()
-
 
 class WebSocketHandler:
     def __init__(

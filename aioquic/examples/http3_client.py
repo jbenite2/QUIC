@@ -250,7 +250,7 @@ async def perform_http_request(
     output_dir: Optional[str],
 ) -> None:
     # perform request
-    start = time.time()
+    clientRequestTime = time.time()
     if data is not None:
         data_bytes = data.encode()
         http_events = await client.post(
@@ -265,7 +265,11 @@ async def perform_http_request(
     else:
         http_events = await client.get(url)
         method = "GET"
-    elapsed = time.time() - start
+
+
+    clientResponseTime = time.time()
+    
+    elapsed = clientResponseTime - clientRequestTime 
 
     # print speed
     octets = 0
@@ -277,15 +281,15 @@ async def perform_http_request(
         % (method, urlparse(url).path, octets, elapsed, octets * 8 / elapsed / 1000000)
     )
 
-    # output response
-    if output_dir is not None:
-        output_path = os.path.join(
-            output_dir, os.path.basename(urlparse(url).path) or "index.html"
-        )
-        with open(output_path, "wb") as output_file:
-            write_response(
-                http_events=http_events, include=include, output_file=output_file
-            )
+
+
+    print("Response for", method, url, ":", octets, "bytes in", elapsed, "s")
+
+    for http_event in http_events:
+        if isinstance(http_event, HeadersReceived):
+            print("Headers received:", http_event.headers)
+        elif isinstance(http_event, DataReceived):
+            print("Data received:", http_event.data.decode())
 
 
 def process_http_pushes(
@@ -342,7 +346,6 @@ def save_session_ticket(ticket: SessionTicket) -> None:
     if args.session_ticket:
         with open(args.session_ticket, "wb") as fp:
             pickle.dump(ticket, fp)
-
 
 async def main(
     configuration: QuicConfiguration,
@@ -424,7 +427,9 @@ async def main(
 
             # process http pushes
             process_http_pushes(client=client, include=include, output_dir=output_dir)
+
         client._quic.close(error_code=ErrorCode.H3_NO_ERROR)
+
 
 
 if __name__ == "__main__":

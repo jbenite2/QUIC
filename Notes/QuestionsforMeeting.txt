@@ -1,0 +1,11 @@
+1. Is there a packet loss here that's why there are 4 messages instead of 3?
+2. I'm not sure how to record time stamp for the received messages, it seems like they all come through at once after they are sent individually by the server. Is this because the connection stays open? Should make three different connections? 
+
+
+How much space do we need to have in terms of a sleep so we can force them to be in different packets.
+Nagles Algorithm
+
+
+Asssignment:
+1. Set up the code where argument so the quantity and the gap are arguments
+2. Write bash script that runs this through a few values
