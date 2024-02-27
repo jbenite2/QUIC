@@ -248,39 +248,34 @@ async def perform_http_request(
     data: Optional[str],
     include: bool,
     output_dir: Optional[str],
-    chunk_size: int = 1000,
 ) -> None:
     # perform request
+    start = time.time()
     if data is not None:
         data_bytes = data.encode()
-        send_time = time.time()
-        for i in range(0, len(data_bytes), chunk_size):
-            http_events = await client.post(
-                url,
-                data=data_bytes[i : i + chunk_size],
-                headers={
-                    "content-length": str(len(data_bytes)),
-                    "content-type": "application/x-www-form-urlencoded",
-                },
-            )
+        http_events = await client.post(
+            url,
+            data=data_bytes,
+            headers={
+                "content-length": str(len(data_bytes)),
+                "content-type": "application/x-www-form-urlencoded",
+            },
+        )
         method = "POST"
     else:
-        send_time = time.time()
         http_events = await client.get(url)
         method = "GET"
-
-    with open("output.txt", "a") as f:
-        f.write(f"{{'client_send_time': {send_time}}}\n")
+    elapsed = time.time() - start
 
     # print speed
     octets = 0
     for http_event in http_events:
         if isinstance(http_event, DataReceived):
             octets += len(http_event.data)
-    # logger.info(
-        # "Response received for %s %s : %d bytes in %.1f s (%.3f Mbps)"
-        # % (method, urlparse(url).path, octets, elapsed, octets * 8 / elapsed / 1000000)
-    # )
+    logger.info(
+        "Response received for %s %s : %d bytes in %.1f s (%.3f Mbps)"
+        % (method, urlparse(url).path, octets, elapsed, octets * 8 / elapsed / 1000000)
+    )
 
     # output response
     if output_dir is not None:
@@ -406,23 +401,11 @@ async def main(
             # send some messages and receive reply
             for i in range(2):
                 message = "Hello {}, WebSocket!".format(i)
-                start_send = time.perf_counter()
                 print("> " + message)
-                print(start_send)
-
                 await ws.send(message)
 
-                end_send = time.perf_counter()
-                print(end_send)
-
-                start_recv = time.perf_counter()
                 message = await ws.recv()
-                end_recv = time.perf_counter()
-
                 print("< " + message)
-
-                print("Send time: ", end_send - start_send)
-                print("Recv time: ", end_recv - start_recv)
 
             await ws.close()
         else:
