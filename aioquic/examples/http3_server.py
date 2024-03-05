@@ -56,6 +56,7 @@ class HttpRequestHandler:
         self.connection = connection
         self.protocol = protocol
         self.queue: asyncio.Queue[Dict] = asyncio.Queue()
+	# kill $server_pid  # Kill the server process
         self.scope = scope
         self.stream_id = stream_id
         self.transmit = transmit
@@ -134,11 +135,9 @@ class HttpRequestHandler:
             )
 
         with open('output.txt', 'a') as f:
-            while packetSendTimes != []:
-                print(packetSendTimes[0], "and the interval is ", interval)
-                f.write("  "+str(packetSendTimes.pop(0))+"\n")
-
-
+                # print(packetSendTimes[0], "and the interval is ", interval)
+                if packetSendTimes:
+                    f.write("SERVER: Last data packet was sent at:"+str(packetSendTimes[0])+"\n")
 
         self.transmit()
 

@@ -251,6 +251,7 @@ async def perform_http_request(
 ) -> None:
     # perform request
     clientRequestTime = time.time()
+
     if data is not None:
         data_bytes = data.encode()
         http_events = await client.post(
@@ -280,6 +281,12 @@ async def perform_http_request(
         "Response received for %s %s : %d bytes in %.1f s (%.3f Mbps)"
         % (method, urlparse(url).path, octets, elapsed, octets * 8 / elapsed / 1000000)
     )
+
+    with open("output.txt", "a") as f:
+        f.write(f"CLIENT: GET Request sent at:{clientRequestTime}\n")
+        f.write(f"CLIENT: GET Response received at:{clientResponseTime}\n")
+        f.write(f"CLIENT: RTT:{elapsed}\n")
+        f.write("\n")
 
 
 
