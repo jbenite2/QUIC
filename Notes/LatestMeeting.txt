@@ -1,22 +1,40 @@
-python examples/http3_client.py --ca-certs tests/pycacert.pem  https://localhost:4433/ -d testing
+March 19:
+
+Crux of the problem: Find out if it’s possible in quick for it not to combine them. Run the algorithm with small packet 100 B and with a sleep of 250 Ms.
+
+Look into the send function so that it does write sleep write sleep write sleep
+
+Is there a flag or a setting that I can enable or disable 0NAGAL in the QUIC library
+
+Also change the receive side for only to do a read for that amount. 
+
+Add time outs in the receiving side and annotate the observation
+
+What we want to find out: Can we force it to be the timing that we want
+
+Look into the open source library and it may be the case that it’s too hard to understand that 
+
+March 26 Meeting Findings:
+There isn't a direct way to force the server to not combine packets in QUIC over UDP. QUIC relies on packet packetization, where it combines multiple data streams into a single UDP datagram for efficiency. This is a core feature of QUIC and provides benefits like reduced congestion control overhead and improved latency.
+
+
+As show in this graph: the received times are almost identical
+
+Quic terminology, is an event the whole package or the data?
+
+
+Look into this part:
+waiter = self._loop.create_future()
+        self._request_events[stream_id] = deque()
+        self._request_waiter[stream_id] = waiter
+        self.transmit()
+		
+
+Look into the waiter function to see I can log the correct arrive times. 
+
+Try to add a few hook to the waiter code. 
+
+Global object is a good idea to debug and see the sequence of events. 
 
 
 
-
-python examples/http3_server.py --certificate tests/ssl_cert.pem --private-key tests/ssl_key.pem -q JBS_log
-
-
-
-
-Structure the log so that we have the event types, time of arrival and of being sent, relative time, 
-
-ABSOLUTE time
-RELATIVE time
-
-Parse the JSON file and try to make sense of it (maybe create a CSV)
-
-Look into a quic JSOn log browser
-
-Try Wireshark while running the program and see what we get
-
-Do this for server and clientx

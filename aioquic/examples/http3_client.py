@@ -251,7 +251,6 @@ async def perform_http_request(
 ) -> None:
     # perform request
     clientRequestTime = time.time()
-
     if data is not None:
         data_bytes = data.encode()
         http_events = await client.post(
@@ -282,12 +281,7 @@ async def perform_http_request(
         % (method, urlparse(url).path, octets, elapsed, octets * 8 / elapsed / 1000000)
     )
 
-    with open("output.txt", "a") as f:
-        f.write(f"CLIENT: GET Request sent at:{clientRequestTime}\n")
-        f.write(f"CLIENT: GET Response received at:{clientResponseTime}\n")
-        f.write(f"CLIENT: RTT:{elapsed}\n")
-        f.write("\n")
-
+    packetReceivedTimes = []
 
 
     print("Response for", method, url, ":", octets, "bytes in", elapsed, "s")
@@ -296,7 +290,13 @@ async def perform_http_request(
         if isinstance(http_event, HeadersReceived):
             print("Headers received:", http_event.headers)
         elif isinstance(http_event, DataReceived):
+            packetReceivedTimes.append(time.time())
             print("Data received:", http_event.data.decode())
+            print("Data size: ", len(http_event.data))
+
+    with open("output.txt", "a") as f:
+        for i in range(len(packetReceivedTimes)-1):
+            f.write("CLIENT: Data packet "+str(i+1)+" was received at: " + str(packetReceivedTimes[i]) + "\n")
 
 
 def process_http_pushes(

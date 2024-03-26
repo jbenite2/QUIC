@@ -115,7 +115,8 @@ class HttpRequestHandler:
                 + [(k, v) for k, v in message["headers"]],
             )
         elif message["type"] == "http.response.body":
-            for _ in range(packet_count):
+            for i in range(packet_count):
+                print("SERVER: Sending data packet", i+1)
                 packet = b"X" * packet_size  # Create a packet of 512 bytes by default
                 self.connection.send_data(
                     stream_id=self.stream_id,
@@ -123,10 +124,10 @@ class HttpRequestHandler:
                     end_stream=False  
                 )
                 serverSendTime = time.time()  
+                print("SERVER: Data packet sent at:", serverSendTime)
                 packetSendTimes.append(serverSendTime)
 
-                time.sleep(interval)  # Sleep for 13 ms between packets
-
+                await asyncio.sleep(interval)
 
             self.connection.send_data(
                 stream_id=self.stream_id,
@@ -135,9 +136,8 @@ class HttpRequestHandler:
             )
 
         with open('output.txt', 'a') as f:
-                # print(packetSendTimes[0], "and the interval is ", interval)
-                if packetSendTimes:
-                    f.write("SERVER: Last data packet was sent at:"+str(packetSendTimes[0])+"\n")
+            for i in range(len(packetSendTimes)):
+                f.write("SERVER: Data packet "+str(i+1)+" was sent at:"+str(packetSendTimes[i])+"\n")
 
         self.transmit()
 

@@ -1,70 +1,16 @@
-Packet Number: 1
-Interval: 0
-SERVER: Last data packet was sent at:1709653839.114764
-CLIENT: GET Request sent at:1709653839.1096902
-CLIENT: GET Response received at:1709653839.1614962
-CLIENT: RTT:0.051805973052978516
-
-Packet Number: 2
-Interval: .080
-SERVER: Last data packet was sent at:1709653841.235563
-CLIENT: GET Request sent at:1709653841.232594
-CLIENT: GET Response received at:1709653841.4885051
-CLIENT: RTT:0.25591111183166504
-
-Packet Number: 3
-Interval: .160
-SERVER: Last data packet was sent at:1709653843.6618931
-CLIENT: GET Request sent at:1709653843.659036
-CLIENT: GET Response received at:1709653844.159523
-CLIENT: RTT:0.5004870891571045
-
-Packet Number: 4
-Interval: .240
-SERVER: Last data packet was sent at:1709653846.313538
-CLIENT: GET Request sent at:1709653846.310538
-CLIENT: GET Response received at:1709653847.0486
-CLIENT: RTT:0.7380619049072266
-
-Packet Number: 5
-Interval: .320
-SERVER: Last data packet was sent at:1709653849.194268
-CLIENT: GET Request sent at:1709653849.191413
-CLIENT: GET Response received at:1709653850.1710668
-CLIENT: RTT:0.9796538352966309
-
-Packet Number: 6
-Interval: .400
-SERVER: Last data packet was sent at:1709653852.3368661
-CLIENT: GET Request sent at:1709653852.333972
-CLIENT: GET Response received at:1709653853.554292
-CLIENT: RTT:1.2203199863433838
-
-Packet Number: 7
-Interval: .480
-SERVER: Last data packet was sent at:1709653855.707714
-CLIENT: GET Request sent at:1709653855.704973
-CLIENT: GET Response received at:1709653857.161131
-CLIENT: RTT:1.456157922744751
-
-Packet Number: 8
-Interval: .560
-SERVER: Last data packet was sent at:1709653859.307252
-CLIENT: GET Request sent at:1709653859.304391
-CLIENT: GET Response received at:1709653861.002281
-CLIENT: RTT:1.697890043258667
-
-Packet Number: 9
-Interval: .640
-SERVER: Last data packet was sent at:1709653863.189057
-CLIENT: GET Request sent at:1709653863.186223
-CLIENT: GET Response received at:1709653865.126129
-CLIENT: RTT:1.9399058818817139
-
-Packet Number: 10
-Interval: .720
-SERVER: Last data packet was sent at:1709653867.276683
-CLIENT: GET Request sent at:1709653867.273952
-CLIENT: GET Response received at:1709653869.454144
-CLIENT: RTT:2.180191993713379
-
+SERVER: Data packet 1 was sent at:1711431246.485677
+SERVER: Data packet 2 was sent at:1711431246.73689
+SERVER: Data packet 3 was sent at:1711431246.9882848
+SERVER: Data packet 4 was sent at:1711431247.239805
+SERVER: Data packet 5 was sent at:1711431247.491288
+SERVER: Data packet 6 was sent at:1711431247.742762
+SERVER: Data packet 7 was sent at:1711431247.994213
+SERVER: Data packet 8 was sent at:1711431248.245524
+CLIENT: Data packet 1 was received at: 1711431248.497519
+CLIENT: Data packet 2 was received at: 1711431248.4975228
+CLIENT: Data packet 3 was received at: 1711431248.497525
+CLIENT: Data packet 4 was received at: 1711431248.4975271
+CLIENT: Data packet 5 was received at: 1711431248.497529
+CLIENT: Data packet 6 was received at: 1711431248.497531
+CLIENT: Data packet 7 was received at: 1711431248.4975328
+CLIENT: Data packet 8 was received at: 1711431248.4975848

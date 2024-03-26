@@ -1,14 +1,14 @@
 #!/bin/bash
 
 # Interval incrementation
-for ((i=0; i<10; i++))
+for ((i=0; i<1; i++))
 do
     interval=$(echo "scale=3; $i * 0.080" | bc)
-	echo "Packet Number: $((i+1))" >> output.txt
-    echo "Interval: $interval" >> output.txt
+	# echo "Packet Number: $((i+1))" >> output.txt
+    # echo "Interval: $interval" >> output.txt
     
     # Start the server in the background
-    python examples/http3_server.py --certificate tests/ssl_cert.pem --private-key tests/ssl_key.pem -interval $interval -size 1024 &
+    python examples/http3_server.py --certificate tests/ssl_cert.pem --private-key tests/ssl_key.pem -interval 0.250 -size 100 -count 8 &
     
     # Capture the PID of the server process
     server_pid=$!
