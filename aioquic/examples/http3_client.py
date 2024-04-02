@@ -38,6 +38,8 @@ HttpConnection = Union[H0Connection, H3Connection]
 
 USER_AGENT = "aioquic/" + aioquic.__version__
 
+packetReceivedTimes = []
+
 
 class URL:
     def __init__(self, url: str) -> None:
@@ -187,8 +189,15 @@ class HttpClient(QuicConnectionProtocol):
         return websocket
 
     def http_event_received(self, event: H3Event) -> None:
+
+
         if isinstance(event, (HeadersReceived, DataReceived)):
             stream_id = event.stream_id
+            #if event is data received, then we need to get the time of the packet received
+            if isinstance(event, DataReceived):
+                packetReceivedTime =  time.time()
+                packetReceivedTimes.append(packetReceivedTime)
+
             if stream_id in self._request_events:
                 # http
                 self._request_events[event.stream_id].append(event)
@@ -229,6 +238,7 @@ class HttpClient(QuicConnectionProtocol):
             + [(k.encode(), v.encode()) for (k, v) in request.headers.items()],
             end_stream=not request.content,
         )
+
         if request.content:
             self._http.send_data(
                 stream_id=stream_id, data=request.content, end_stream=True
@@ -238,6 +248,7 @@ class HttpClient(QuicConnectionProtocol):
         self._request_events[stream_id] = deque()
         self._request_waiter[stream_id] = waiter
         self.transmit()
+
 
         return await asyncio.shield(waiter)
 
@@ -267,6 +278,7 @@ async def perform_http_request(
         method = "GET"
 
 
+
     clientResponseTime = time.time()
     
     elapsed = clientResponseTime - clientRequestTime 
@@ -281,22 +293,22 @@ async def perform_http_request(
         % (method, urlparse(url).path, octets, elapsed, octets * 8 / elapsed / 1000000)
     )
 
-    packetReceivedTimes = []
+    # packetReceivedTimes = []
 
 
-    print("Response for", method, url, ":", octets, "bytes in", elapsed, "s")
+    # print("Response for", method, url, ":", octets, "bytes in", elapsed, "s")
 
-    for http_event in http_events:
-        if isinstance(http_event, HeadersReceived):
-            print("Headers received:", http_event.headers)
-        elif isinstance(http_event, DataReceived):
-            packetReceivedTimes.append(time.time())
-            print("Data received:", http_event.data.decode())
-            print("Data size: ", len(http_event.data))
+    # for http_event in http_events:
+    #     if isinstance(http_event, HeadersReceived):
+    #         print("Headers received:", http_event.headers)
+    #     elif isinstance(http_event, DataReceived):
+    #         packetReceivedTimes.append(time.time())
+    #         print("Data received:", http_event.data.decode())
+    #         print("Data size: ", len(http_event.data))
 
     with open("output.txt", "a") as f:
         for i in range(len(packetReceivedTimes)-1):
-            f.write("CLIENT: Data packet "+str(i+1)+" was received at: " + str(packetReceivedTimes[i]) + "\n")
+            f.write("CLIENT: Data packet "+str(i+1)+" was received at:" + str(packetReceivedTimes[i]) + "\n")
 
 
 def process_http_pushes(
