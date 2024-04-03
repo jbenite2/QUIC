@@ -37,4 +37,6 @@ Try to add a few hook to the waiter code.
 Global object is a good idea to debug and see the sequence of events. 
 
 
+April 2 Meeting Findings:
+
 

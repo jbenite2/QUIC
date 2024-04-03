@@ -106,6 +106,7 @@ class WebSocket:
         self.http.send_data(stream_id=self.stream_id, data=data, end_stream=False)
         self.transmit()
 
+    #Not USED
     def http_event_received(self, event: H3Event) -> None:
         if isinstance(event, HeadersReceived):
             for header, value in event.headers:
@@ -189,8 +190,6 @@ class HttpClient(QuicConnectionProtocol):
         return websocket
 
     def http_event_received(self, event: H3Event) -> None:
-
-
         if isinstance(event, (HeadersReceived, DataReceived)):
             stream_id = event.stream_id
             #if event is data received, then we need to get the time of the packet received
@@ -211,7 +210,6 @@ class HttpClient(QuicConnectionProtocol):
                 websocket.http_event_received(event)
 
             elif event.push_id in self.pushes:
-                # push
                 self.pushes[event.push_id].append(event)
 
         elif isinstance(event, PushPromiseReceived):
