@@ -1,6 +1,6 @@
 # Notre Dame Computer Networks Research: QUIC Findings
 
-During the course of the spring semester of 2024. I realized a series of experiments, leveraging two main QUIC open source libraries: Aioquic and Quiche. 
+During the course of the spring semester in 2024, I conducted a series of experiments using two main QUIC open-source libraries: Aioquic and Quiche.
 
 ## Aioquic
 - Started by forking this repo:
