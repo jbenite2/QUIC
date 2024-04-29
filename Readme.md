@@ -28,7 +28,7 @@ During the course of the spring semester of 2024. I realized a series of experim
     python examples/http3_server.py --certificate tests/ssl_cert.pem --private-key tests/ssl_key.pem -interval 0.250 -size 100 -count
     python examples/http3_client.py --ca-certs tests/pycacert.pem https://localhost:4433/
 ```
-- By running make, the scripts will run in order. Type this command to see the results in a graph format:
+- By running "make", the scripts will run in order. Type this command after the "make" to see the results in a graph format:
 ```bash
     python createGraph.py
 ```
