@@ -3,7 +3,7 @@
 During the course of the spring semester of 2024. I realized a series of experiments, leveraging two main QUIC open source libraries: Aioquic and Quiche. 
 
 ## Aioquic
-- I started by forking this repo:
+- Started by forking this repo:
 ```bash
 git clone https://github.com/aiortc/aioquic
 ```
