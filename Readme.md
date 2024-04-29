@@ -20,8 +20,8 @@ During the course of the spring semester of 2024. I realized a series of experim
     - aioquic/createGraph.py
 
 
-> The code is originally structured so client sends data to the server. I had to switch this logic so that the client send a GET request to the server and it responds with the data. 
-> The code was also modified so the user could add interval, size, and count as arguments. 
+    > The code is originally structured so client sends data to the server. I had to switch this logic so that the client send a GET request to the server and it responds with the data. 
+    > The code was also modified so the user could add interval, size, and count as arguments. 
 
 - This is how to run the example server and client:
     ```bash
