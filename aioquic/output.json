@@ -1,19 +1,19 @@
 {
-    "Data packet 1 was sent at:1713817804.737271": {
-        "interval": "Data packet 2 was sent at:1713817804.988669",
-        "serverSend": "1713817805.240128",
-        "clientSend": "1713817805.491565",
-        "clientReceived": "1713817805.74299",
-        "clientRTT": "1713817805.994445"
+    "Data packet 1 was sent at:1714422558.082871": {
+        "interval": "Data packet 2 was sent at:1714422558.334272",
+        "serverSend": "1714422558.585418",
+        "clientSend": "1714422558.836863",
+        "clientReceived": "1714422559.088232",
+        "clientRTT": "1714422559.33919"
     },
-    "Data packet 8 was sent at:1713817806.496463": {
-        "interval": "Data packet 1 was received at:1713817804.737655",
-        "serverSend": "1713817806.749383",
-        "clientSend": "1713817806.7493901",
-        "clientReceived": "1713817806.749393",
-        "clientRTT": "1713817806.749395"
+    "Data packet 8 was sent at:1714422559.8417358": {
+        "interval": "Data packet 1 was received at:1714422558.083083",
+        "serverSend": "1714422560.095846",
+        "clientSend": "1714422560.0958521",
+        "clientReceived": "1714422560.095854",
+        "clientRTT": "1714422560.0958562"
     },
-    "Data packet 7 was received at:1713817806.749404": {
-        "interval": "Data packet 8 was received at:1713817806.749407"
+    "Data packet 7 was received at:1714422560.0958662": {
+        "interval": "Data packet 8 was received at:1714422560.0958688"
     }
 }
