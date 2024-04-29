@@ -10,14 +10,14 @@ git clone https://github.com/aiortc/aioquic
 
 - The files that I specifically modified are the following:
     - aioquic/examples/http3_client.py 
-- aioquic/examples/http3_server.py
-- aioquic/dataRecollection.sh
-- aioquic/output.json
-- aioquic/output.txt
-- aioquic/setup.py
-- aioquic/parseTextToJson.py
-- aioquic/Makefile
-- aioquic/createGraph.py
+    - aioquic/examples/http3_server.py
+    - aioquic/dataRecollection.sh
+    - aioquic/output.json
+    - aioquic/output.txt
+    - aioquic/setup.py
+    - aioquic/parseTextToJson.py
+    - aioquic/Makefile
+    - aioquic/createGraph.py
 
 
 - The code is originally structured so client sends data to the server. I had to switch this logic so that the client send a GET request to the server and it responds with the data. 
