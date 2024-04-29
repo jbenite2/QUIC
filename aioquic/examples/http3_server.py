@@ -36,6 +36,9 @@ HttpConnection = Union[H0Connection, H3Connection]
 
 SERVER_NAME = "aioquic/" + aioquic.__version__
 
+packet_size = 512
+interval = 0.013
+packet_count = 3
 
 class HttpRequestHandler:
     def __init__(
@@ -53,6 +56,7 @@ class HttpRequestHandler:
         self.connection = connection
         self.protocol = protocol
         self.queue: asyncio.Queue[Dict] = asyncio.Queue()
+	# kill $server_pid  # Kill the server process
         self.scope = scope
         self.stream_id = stream_id
         self.transmit = transmit
@@ -61,33 +65,34 @@ class HttpRequestHandler:
             self.queue.put_nowait({"type": "http.request"})
 
     def http_event_received(self, event: H3Event) -> None:
-        if isinstance(event, DataReceived):
-            # data_received = event.data.decode("utf-8")  
-            # print(f"Received data: {data_received}")
-            received_time = time.time()
-            self.queue.put_nowait(
-                {
-                    # "type": "http.request",
-                    # "body": event.data,
-                    # "more_body": not event.stream_ended,
-                    "server_received_time": received_time
-                }
-            )
-            # elapsed_time = time.time() - start_time# Assuming data is in utf-8 encoding
-            # print(f"Time taken to process data: {elapsed_time} seconds")
-
-
-        elif isinstance(event, HeadersReceived) and event.stream_ended:
-            self.queue.put_nowait(
-                {"type": "http.request", "body": b"", "more_body": False}
-            )
-        
-        # Output queue to another file
-        with open('output.txt', 'a') as f:
-            while not self.queue.empty():
-                f.write(str(self.queue.get_nowait()) + "\n")
-            
-
+        if isinstance(event, HeadersReceived) and event.stream_ended:
+            # Respond only if it's a GET request
+            if self.scope["method"].decode().upper() == "GET":
+                # Respond with "Hello World"
+                response_body = b"Hello World"
+                self.queue.put_nowait(
+                    {
+                        "type": "http.response.start",
+                        "status": 200,
+                        "headers": [
+                            (b"content-length", str(len(response_body)).encode()),
+                            (b"content-type", b"text/plain"),
+                        ],
+                    }
+                )
+                self.queue.put_nowait({"type": "http.response.body", "body": response_body, "more_body": False})
+            else:
+                # Respond with 405 Method Not Allowed for non-GET requests
+                self.queue.put_nowait(
+                    {
+                        "type": "http.response.start",
+                        "status": 405,
+                        "headers": [
+                            (b"content-length", b"0"),
+                        ],
+                    }
+                )
+                self.queue.put_nowait({"type": "http.response.body", "body": b"", "more_body": False})
 
     async def run_asgi(self, app: AsgiApplication) -> None:
         await app(self.scope, self.receive, self.send)
@@ -96,6 +101,9 @@ class HttpRequestHandler:
         return await self.queue.get()
 
     async def send(self, message: Dict) -> None:
+
+        packetSendTimes = []
+
         if message["type"] == "http.response.start":
             self.connection.send_headers(
                 stream_id=self.stream_id,
@@ -107,37 +115,31 @@ class HttpRequestHandler:
                 + [(k, v) for k, v in message["headers"]],
             )
         elif message["type"] == "http.response.body":
+            for i in range(packet_count):
+                print("SERVER: Sending data packet", i+1)
+                packet = b"X" * packet_size  # Create a packet of 512 bytes by default
+                self.connection.send_data(
+                    stream_id=self.stream_id,
+                    data=packet,
+                    end_stream=False  
+                )
+                serverSendTime = time.time()  
+                print("SERVER: Data packet sent at:", serverSendTime)
+                packetSendTimes.append(serverSendTime)
+
+                await asyncio.sleep(interval)
+
             self.connection.send_data(
                 stream_id=self.stream_id,
-                data=message.get("body", b""),
-                end_stream=not message.get("more_body", False),
+                data=b"",  # Send an empty data packet to end the stream
+                end_stream=True  # Set end_stream to True for the last packet
             )
-        elif message["type"] == "http.response.push" and isinstance(
-            self.connection, H3Connection
-        ):
-            request_headers = [
-                (b":method", b"GET"),
-                (b":scheme", b"https"),
-                (b":authority", self.authority),
-                (b":path", message["path"].encode()),
-            ] + [(k, v) for k, v in message["headers"]]
 
-            # send push promise
-            try:
-                push_stream_id = self.connection.send_push_promise(
-                    stream_id=self.stream_id, headers=request_headers
-                )
-            except NoAvailablePushIDError:
-                return
+        with open('output.txt', 'a') as f:
+            for i in range(len(packetSendTimes)):
+                f.write("SERVER: Data packet "+str(i+1)+" was sent at:"+str(packetSendTimes[i])+"\n")
 
-            # fake request
-            cast(HttpServerProtocol, self.protocol).http_event_received(
-                HeadersReceived(
-                    headers=request_headers, stream_ended=True, stream_id=push_stream_id
-                )
-            )
         self.transmit()
-
 
 class WebSocketHandler:
     def __init__(
@@ -516,6 +518,27 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="QUIC server")
     parser.add_argument(
+            "-size",
+            type=int,
+            nargs="?",
+            default=512,
+            help="the size of the packet to send",
+    )
+    parser.add_argument(
+            "-interval",
+            type=float,
+            nargs="?",
+            default=0.013,
+            help="the interval between packets",
+    )
+    parser.add_argument(
+            "-count",
+            type=int,
+            nargs="?",
+            default=3,
+            help="the number of packets to send",
+    )
+    parser.add_argument(
         "app",
         type=str,
         nargs="?",
@@ -580,6 +603,16 @@ if __name__ == "__main__":
         "-v", "--verbose", action="store_true", help="increase logging verbosity"
     )
     args = parser.parse_args()
+
+
+    if args.size:
+        packet_size = args.size
+    if args.interval:
+        interval = args.interval
+    if args.count:
+        packet_count = args.count
+
+
 
     logging.basicConfig(
         format="%(asctime)s %(levelname)s %(name)s %(message)s",

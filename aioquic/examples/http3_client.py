@@ -38,6 +38,8 @@ HttpConnection = Union[H0Connection, H3Connection]
 
 USER_AGENT = "aioquic/" + aioquic.__version__
 
+packetReceivedTimes = []
+
 
 class URL:
     def __init__(self, url: str) -> None:
@@ -104,6 +106,7 @@ class WebSocket:
         self.http.send_data(stream_id=self.stream_id, data=data, end_stream=False)
         self.transmit()
 
+    #Not USED
     def http_event_received(self, event: H3Event) -> None:
         if isinstance(event, HeadersReceived):
             for header, value in event.headers:
@@ -189,6 +192,11 @@ class HttpClient(QuicConnectionProtocol):
     def http_event_received(self, event: H3Event) -> None:
         if isinstance(event, (HeadersReceived, DataReceived)):
             stream_id = event.stream_id
+            #if event is data received, then we need to get the time of the packet received
+            if isinstance(event, DataReceived):
+                packetReceivedTime =  time.time()
+                packetReceivedTimes.append(packetReceivedTime)
+
             if stream_id in self._request_events:
                 # http
                 self._request_events[event.stream_id].append(event)
@@ -202,7 +210,6 @@ class HttpClient(QuicConnectionProtocol):
                 websocket.http_event_received(event)
 
             elif event.push_id in self.pushes:
-                # push
                 self.pushes[event.push_id].append(event)
 
         elif isinstance(event, PushPromiseReceived):
@@ -229,6 +236,7 @@ class HttpClient(QuicConnectionProtocol):
             + [(k.encode(), v.encode()) for (k, v) in request.headers.items()],
             end_stream=not request.content,
         )
+
         if request.content:
             self._http.send_data(
                 stream_id=stream_id, data=request.content, end_stream=True
@@ -239,6 +247,7 @@ class HttpClient(QuicConnectionProtocol):
         self._request_waiter[stream_id] = waiter
         self.transmit()
 
+
         return await asyncio.shield(waiter)
 
 
@@ -248,49 +257,56 @@ async def perform_http_request(
     data: Optional[str],
     include: bool,
     output_dir: Optional[str],
-    chunk_size: int = 1000,
 ) -> None:
     # perform request
+    clientRequestTime = time.time()
     if data is not None:
         data_bytes = data.encode()
-        send_time = time.time()
-        for i in range(0, len(data_bytes), chunk_size):
-            http_events = await client.post(
-                url,
-                data=data_bytes[i : i + chunk_size],
-                headers={
-                    "content-length": str(len(data_bytes)),
-                    "content-type": "application/x-www-form-urlencoded",
-                },
-            )
+        http_events = await client.post(
+            url,
+            data=data_bytes,
+            headers={
+                "content-length": str(len(data_bytes)),
+                "content-type": "application/x-www-form-urlencoded",
+            },
+        )
         method = "POST"
     else:
-        send_time = time.time()
         http_events = await client.get(url)
         method = "GET"
 
-    with open("output.txt", "a") as f:
-        f.write(f"{{'client_send_time': {send_time}}}\n")
+
+
+    clientResponseTime = time.time()
+    
+    elapsed = clientResponseTime - clientRequestTime 
 
     # print speed
     octets = 0
     for http_event in http_events:
         if isinstance(http_event, DataReceived):
             octets += len(http_event.data)
-    # logger.info(
-        # "Response received for %s %s : %d bytes in %.1f s (%.3f Mbps)"
-        # % (method, urlparse(url).path, octets, elapsed, octets * 8 / elapsed / 1000000)
-    # )
+    logger.info(
+        "Response received for %s %s : %d bytes in %.1f s (%.3f Mbps)"
+        % (method, urlparse(url).path, octets, elapsed, octets * 8 / elapsed / 1000000)
+    )
 
-    # output response
-    if output_dir is not None:
-        output_path = os.path.join(
-            output_dir, os.path.basename(urlparse(url).path) or "index.html"
-        )
-        with open(output_path, "wb") as output_file:
-            write_response(
-                http_events=http_events, include=include, output_file=output_file
-            )
+    # packetReceivedTimes = []
+
+
+    # print("Response for", method, url, ":", octets, "bytes in", elapsed, "s")
+
+    # for http_event in http_events:
+    #     if isinstance(http_event, HeadersReceived):
+    #         print("Headers received:", http_event.headers)
+    #     elif isinstance(http_event, DataReceived):
+    #         packetReceivedTimes.append(time.time())
+    #         print("Data received:", http_event.data.decode())
+    #         print("Data size: ", len(http_event.data))
+
+    with open("output.txt", "a") as f:
+        for i in range(len(packetReceivedTimes)-1):
+            f.write("CLIENT: Data packet "+str(i+1)+" was received at:" + str(packetReceivedTimes[i]) + "\n")
 
 
 def process_http_pushes(
@@ -347,7 +363,6 @@ def save_session_ticket(ticket: SessionTicket) -> None:
     if args.session_ticket:
         with open(args.session_ticket, "wb") as fp:
             pickle.dump(ticket, fp)
-
 
 async def main(
     configuration: QuicConfiguration,
@@ -406,23 +421,11 @@ async def main(
             # send some messages and receive reply
             for i in range(2):
                 message = "Hello {}, WebSocket!".format(i)
-                start_send = time.perf_counter()
                 print("> " + message)
-                print(start_send)
-
                 await ws.send(message)
 
-                end_send = time.perf_counter()
-                print(end_send)
-
-                start_recv = time.perf_counter()
                 message = await ws.recv()
-                end_recv = time.perf_counter()
-
                 print("< " + message)
-
-                print("Send time: ", end_send - start_send)
-                print("Recv time: ", end_recv - start_recv)
 
             await ws.close()
         else:
@@ -441,7 +444,9 @@ async def main(
 
             # process http pushes
             process_http_pushes(client=client, include=include, output_dir=output_dir)
+
         client._quic.close(error_code=ErrorCode.H3_NO_ERROR)
+
 
 
 if __name__ == "__main__":
