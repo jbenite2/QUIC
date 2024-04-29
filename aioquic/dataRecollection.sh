@@ -15,7 +15,7 @@ do
     echo "Server started with PID: $server_pid"
     
     # Start the client
-    python examples/http3_client.py --ca-certs tests/pycacert.pem  https://localhost:4433/
+    python examples/http3_client.py --ca-certs tests/pycacert.pem https://localhost:4433/
     echo "Client started"
     
     # Kill the server process
