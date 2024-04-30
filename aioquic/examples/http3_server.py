@@ -56,7 +56,6 @@ class HttpRequestHandler:
         self.connection = connection
         self.protocol = protocol
         self.queue: asyncio.Queue[Dict] = asyncio.Queue()
-	# kill $server_pid  # Kill the server process
         self.scope = scope
         self.stream_id = stream_id
         self.transmit = transmit
@@ -516,6 +515,7 @@ async def main(
 if __name__ == "__main__":
     defaults = QuicConfiguration(is_client=False)
 
+    #jbenite2
     parser = argparse.ArgumentParser(description="QUIC server")
     parser.add_argument(
             "-size",

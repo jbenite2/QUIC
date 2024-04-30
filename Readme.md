@@ -7,11 +7,15 @@ During the course of the spring semester in 2024, I conducted a series of experi
     ```bash
     git clone https://github.com/aiortc/aioquic
     ```
-
+- To find the functions modified by me command find jbenite2.
 - The files that I specifically modified are the following:
     - aioquic/examples/http3_client.py 
+       - The function perfor_http_request was modified to log received packets.
     - aioquic/examples/http3_server.py
+       - Flags were added to main to adapt to the size, interval, and count of the data that is returned after the GET request is sent. 
+       - HTTP_event_received was modified to account for the flags that were added and in turn dynamically return an input of a given size at specified intervals. 
     - aioquic/dataRecollection.sh
+       - This script starts the client and the server by running using a for loop. 
     - aioquic/output.json
     - aioquic/output.txt
     - aioquic/setup.py

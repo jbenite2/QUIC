@@ -291,19 +291,7 @@ async def perform_http_request(
         % (method, urlparse(url).path, octets, elapsed, octets * 8 / elapsed / 1000000)
     )
 
-    # packetReceivedTimes = []
-
-
-    # print("Response for", method, url, ":", octets, "bytes in", elapsed, "s")
-
-    # for http_event in http_events:
-    #     if isinstance(http_event, HeadersReceived):
-    #         print("Headers received:", http_event.headers)
-    #     elif isinstance(http_event, DataReceived):
-    #         packetReceivedTimes.append(time.time())
-    #         print("Data received:", http_event.data.decode())
-    #         print("Data size: ", len(http_event.data))
-
+    #jbenite2
     with open("output.txt", "a") as f:
         for i in range(len(packetReceivedTimes)-1):
             f.write("CLIENT: Data packet "+str(i+1)+" was received at:" + str(packetReceivedTimes[i]) + "\n")
