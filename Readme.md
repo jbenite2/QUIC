@@ -9,16 +9,16 @@ During the course of the spring semester in 2024, I conducted a series of experi
     ```
 - To find the functions modified by me command find jbenite2.
 - The files that I specifically modified are the following:
-    - aioquic/examples/http3_client.py 
+    - [aioquic/examples/http3_client.py](https://github.com/jbenite2/QUIC/blob/main/aioquic/examples/http3_client.py) 
        - The function perfor_http_request was modified to log received packets.
-    - aioquic/examples/http3_server.py
+    - [aioquic/examples/http3_server.py](https://github.com/jbenite2/QUIC/blob/main/aioquic/examples/http3_server.py)
        - Flags were added to main to adapt to the size, interval, and count of the data that is returned after the GET request is sent. 
        - HTTP_event_received was modified to account for the flags that were added and also dynamically return an input of a given size at specified intervals. 
-    - aioquic/dataRecollection.sh
+    - [aioquic/dataRecollection.sh](https://github.com/jbenite2/QUIC/blob/main/aioquic/dataRecollection.sh)
        - This script starts the client and the server by running using a for loop. 
-    - aioquic/output.json
+    - [aioquic/output.json](https://github.com/jbenite2/QUIC/blob/main/aioquic/output.json)
        - Contains the results of the server and the client after processing. 
-    - aioquic/output.txt
+    - [aioquic/output.txt](https://github.com/jbenite2/QUIC/blob/main/aioquic/output.txt)
        - Contains the results of the server and the client before processing. 
     - aioquic/parseTextToJson.py
        - Parses the txt file and organizes it in a way that is suitable for graphing.  
