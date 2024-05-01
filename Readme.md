@@ -13,15 +13,18 @@ During the course of the spring semester in 2024, I conducted a series of experi
        - The function perfor_http_request was modified to log received packets.
     - aioquic/examples/http3_server.py
        - Flags were added to main to adapt to the size, interval, and count of the data that is returned after the GET request is sent. 
-       - HTTP_event_received was modified to account for the flags that were added and in turn dynamically return an input of a given size at specified intervals. 
+       - HTTP_event_received was modified to account for the flags that were added and also dynamically return an input of a given size at specified intervals. 
     - aioquic/dataRecollection.sh
        - This script starts the client and the server by running using a for loop. 
     - aioquic/output.json
+       - Contains the results of the server and the client after processing. 
     - aioquic/output.txt
-    - aioquic/setup.py
+       - Contains the results of the server and the client before processing. 
     - aioquic/parseTextToJson.py
+       - Parses the txt file and organizes it in a way that is suitable for graphing.  
     - aioquic/Makefile
     - aioquic/createGraph.py
+       -Leverages pyplot to make a graph of the results
 
 
 > The code is originally structured so client sends data to the server. I had to switch this logic so that the client send a GET request to the server and it responds with the data. 
@@ -41,6 +44,8 @@ During the course of the spring semester in 2024, I conducted a series of experi
     - Aioquic's asynchronous logic doesn't allow for packet separation upon reception. 
         - All the packets, even though they were sent out individually, were bundled together and delivered at the same time as shown by this graph. 
         ![image](aioquic_graph.png)
+        - The graph above shows how I sent packages out at a certain interval and QUIC bundled them together on the client side so they all seem to be coming in at the same time. 
+        - The main idea was to have the packets come in individually. However, I couldn't find a way to do this in Aioquic. After much trying I looked for another way to achieve this goal: QUICHE. 
 
 
 ## Quiche
@@ -49,13 +54,16 @@ During the course of the spring semester in 2024, I conducted a series of experi
 https://github.com/cloudflare/quiche
 ```
 
+- This project uses RUST. I ran it using a Macbook Pro and had to download several dependencies including cargo. 
+
 - The files that I specifically modified:
     - quiche/apps/src/bin/quiche-client.rs
+        - This file references the actual client which is the one below.
     - quiche/apps/src/bin/quiche-server.rs
     - quiche/apps/bin/args.rs
+        - Modified common args in an attempt to modify the size of the data sent and the intervals.
     - quiche/apps/bin/client.rs
-    - quiche/apps/bin/common.rs
-    - quiche/apps/Cargo.toml
+        - Added stopwatch logic to record send time. 
     - quiche/examples/server.rs
 
 - To run this:
