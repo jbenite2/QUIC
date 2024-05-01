@@ -58,14 +58,13 @@ https://github.com/cloudflare/quiche
 - This project uses RUST. I ran it using a Macbook Pro and had to download several dependencies including cargo. 
 
 - The files that I specifically modified:
-    - quiche/apps/src/bin/quiche-client.rs
+    - [quiche/apps/src/bin/quiche-client.rs](https://github.com/jbenite2/QUIC/blob/main/quiche/apps/src/bin/quiche-client.rs)
         - This file references the actual client which is the one below.
-    - quiche/apps/src/bin/quiche-server.rs
-    - quiche/apps/bin/args.rs
+    - [quiche/apps/src/bin/quiche-server.rs](https://github.com/jbenite2/QUIC/blob/main/quiche/apps/src/bin/quiche-server.rs)
+    - [quiche/apps/bin/args.rs](https://github.com/jbenite2/QUIC/blob/main/quiche/apps/src/args.rs)
         - Modified common args in an attempt to modify the size of the data sent and the intervals.
-    - quiche/apps/bin/client.rs
+    - [quiche/apps/src/client.rs](https://github.com/jbenite2/QUIC/blob/main/quiche/apps/src/client.rs)
         - Added stopwatch logic to record send time. 
-    - quiche/examples/server.rs
 
 - To run this:
 ```bash
