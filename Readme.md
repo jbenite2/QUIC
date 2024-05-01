@@ -21,9 +21,10 @@ During the course of the spring semester in 2024, I conducted a series of experi
     - [aioquic/output.txt](https://github.com/jbenite2/QUIC/blob/main/aioquic/output.txt)
        - Contains the results of the server and the client before processing. 
     - aioquic/parseTextToJson.py
+    - [aioquic/parseTextToJson.py](https://github.com/jbenite2/QUIC/blob/main/aioquic/parseTextToJson.py)
        - Parses the txt file and organizes it in a way that is suitable for graphing.  
-    - aioquic/Makefile
-    - aioquic/createGraph.py
+    - [aioquic/Makefile](https://github.com/jbenite2/QUIC/blob/main/aioquic/Makefile)
+    - [aioquic/createGraph.py](https://github.com/jbenite2/QUIC/blob/main/aioquic/createGraph.py)
        -Leverages pyplot to make a graph of the results
 
 
